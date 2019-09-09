@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RicercaTitoloActivity">
+
+    <TextView
+        android:id="@+id/genereTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/nCopieInTextView"
+        tools:layout_editor_absoluteX="59dp" />
+
+    <TextView
+        android:id="@+id/nCopieInTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/nCopieOutTextView"
+        tools:layout_editor_absoluteX="59dp" />
+
+    <TextView
+        android:id="@+id/autoreTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        app:layout_constraintTop_toBottomOf="@+id/titoloTextView"
+        tools:layout_editor_absoluteX="59dp" />
+
+    <EditText
+        android:id="@+id/ricercaLibroField"
+        android:layout_width="309dp"
+        android:layout_height="43dp"
+        android:ems="10"
+        android:hint="Inserire il titolo del libro da cercare"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.123" />
+
+    <Button
+        android:id="@+id/cercaBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="CERCA"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ricercaLibroField" />
+
+    <TextView
+        android:id="@+id/titoloTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="76dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cercaBtn" />
+
+    <TextView
+        android:id="@+id/nCopieOutTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/autoreTextView"
+        tools:layout_editor_absoluteX="59dp" />
+
+    <TextView
+        android:id="@+id/annoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@+id/genereTextView"
+        tools:layout_editor_absoluteX="59dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
