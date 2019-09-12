@@ -3,6 +3,7 @@ package com.example.biblioteca;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RegistrazioneUtenteActivity extends AppCompatActivity {
     private EditText campoNome;
@@ -24,23 +27,25 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
     private Button conferma;
 
 
-    UtentiDB userDB;      //crea un oggetto di classe UtentiDB. Necessario per poter inserire una nuova utenza tramite il metodo inserisciUtente
+    BiblioDB userDB;      //crea un oggetto di classe BiblioDB. Necessario per poter inserire una nuova utenza tramite il metodo inserisciUtente
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrazione_utente);
-        userDB = new UtentiDB(this);
+        userDB = new BiblioDB(this);
 
 
         campoNome = findViewById(R.id.titleField);
         campoCogome = findViewById(R.id.authorField);
         campoCodiceFiscale = findViewById(R.id.genreField);
+        campoCodiceFiscale.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
         //campoNascita = findViewById(R.id.dateField);
         campoMail = findViewById(R.id.copieInField);          //ASSOCIA I VALORI DICHIARATI SOPRA AGLI ELEMENTI PRESENTI NEL XML
         campoPassword = findViewById(R.id.passwordField);
         campoConfermaPassword = findViewById(R.id.confirmPassField);
         conferma = findViewById(R.id.confirmNewBookBtn);
+
 
         campoNome.addTextChangedListener(registrazioneTextWatcher);
         campoCogome.addTextChangedListener(registrazioneTextWatcher);
@@ -61,7 +66,9 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
                 String confermaPassword = campoConfermaPassword.getText().toString().trim();
                 Utente utente = new Utente();
 
-                if(password.equals(confermaPassword)){
+                if((password.equals(confermaPassword))&&(validaPassword(password))){
+                    //ArrayList<String> arr = new ArrayList<String>();
+                    //arr.add("");
                     utente.setNome(nome);
                     utente.setCognome(cognome);
                     utente.setCodiceFiscale(codicefiscale);
@@ -89,8 +96,10 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
                         Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente NON registrato", Toast.LENGTH_SHORT);
                         inserimento.show();
                     }
+                    userDB.inserisciUtente(utente);
+
                 }else{
-                    Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Le password non coincidono", Toast.LENGTH_SHORT);
+                    Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Le password non coincidono, oppure non inserita nel formato corretto", Toast.LENGTH_SHORT);
                     inserimento.show();
                 }
             }
@@ -121,4 +130,16 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
 
         }
     };
+
+    public boolean validaPassword(String password){
+        Pattern pattern;
+        Matcher matcher;
+
+        final String passPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!,$%.&])(?=\\S+$).{8,}$";
+
+        pattern = Pattern.compile(passPattern);
+        matcher = pattern.matcher(password);
+
+        return matcher.matches();
+    }
 }

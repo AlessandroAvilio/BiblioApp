@@ -14,29 +14,29 @@ import androidx.appcompat.app.AppCompatActivity;
 public class EliminaLibroActivity extends AppCompatActivity {
     private EditText ricercaLibro;
     private Button eliminaBtn;
-    LibriDB libriDB;
+    BiblioDB biblioDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_elimina_libro);
-        libriDB = new LibriDB(this);
+        biblioDB = new BiblioDB(this);
 
-        ricercaLibro = findViewById(R.id.ricercaLibroField);
-        eliminaBtn = findViewById(R.id.cercaBtn);
+        ricercaLibro = findViewById(R.id.ricercaLibroPrestitoField);
+                    eliminaBtn = findViewById(R.id.cercaLibroPrestitoBtn);
 
-        ricercaLibro.addTextChangedListener(eliminaLibroTW);
+                    ricercaLibro.addTextChangedListener(eliminaLibroTW);
 
-        eliminaBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String titolo = ricercaLibro.getText().toString().trim();
+                    eliminaBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            String titolo = ricercaLibro.getText().toString().trim();
 
 
-                Integer val = libriDB.eliminaLibro(titolo);
-                if(val > 0 ){
-                    Toast dismissione = Toast.makeText(EliminaLibroActivity.this, "Libro dismesso", Toast.LENGTH_SHORT);
-                    dismissione.show();
+                            Integer val = biblioDB.eliminaLibro(titolo);
+                            if(val > 0 ){
+                                Toast dismissione = Toast.makeText(EliminaLibroActivity.this, "Libro dismesso", Toast.LENGTH_SHORT);
+                                dismissione.show();
                     Intent intent = new Intent(EliminaLibroActivity.this, HomePageActivity.class);
                     startActivity(intent);
                 }else{

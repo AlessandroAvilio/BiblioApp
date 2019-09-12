@@ -1,20 +1,19 @@
 package com.example.biblioteca;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 public class Utente implements CambiaTipoInOro, ImpostaAdmin{
     private String nome, cognome;
     private String codiceFiscale;
     private Date nascita;
-    private ArrayList<Integer> idLibro = new ArrayList<>();
     private String tipoUtenza;
-    private static int count = 0;
+    //private static int count = 0;
     private int countPrestiti;
     private int tesseraPunti;
     private String email;
     private String password;
     private String permessi;
+
 
     public String getNome() {
         return nome;
@@ -49,13 +48,6 @@ public class Utente implements CambiaTipoInOro, ImpostaAdmin{
         this.nascita = nascita;
     }
 
-    public ArrayList<Integer> getIdLibro() {
-        return idLibro;
-    }
-
-    public void setIdLibro(ArrayList<Integer> idLibro) { //Integer = WrapperClass
-        this.idLibro = idLibro;
-    }
 
     public String getTipoUtenza() {
         return tipoUtenza;
@@ -114,4 +106,6 @@ public class Utente implements CambiaTipoInOro, ImpostaAdmin{
     public void impostaAdmin(String permessi) {
         this.permessi = "Admin";
     }
+
+
 }

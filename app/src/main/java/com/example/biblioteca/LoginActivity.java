@@ -20,13 +20,13 @@ public class LoginActivity extends AppCompatActivity {
     private Button cancellaUtenze;
     private Button instantAccess;
 
-    UtentiDB uDb;
+    BiblioDB uDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        uDb = new UtentiDB(this);
+        uDb = new BiblioDB(this);
 
         email = findViewById(R.id.copieInField);
         password = findViewById(R.id.passwordField);
@@ -109,6 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void apriHomePage() {
         Intent intent = new Intent(this, HomePageActivity.class);
+        intent.putExtra("Utente", email.getText().toString());
         startActivity(intent);
     }
 
@@ -118,14 +119,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void apriRegistraAdmin(){
-        Utente utente = new Utente();
         Intent intent = new Intent(this, RegistrazioneUtenteActivity.class);
         intent.putExtra("Bottone", "admin");
         startActivity(intent);
     }
 
     public void cancella(){
-        UtentiDB db = new UtentiDB(this);
-        db.cancellaTabella();
+        BiblioDB db = new BiblioDB(this);
+        db.cancellaUtenze();
     }
 }

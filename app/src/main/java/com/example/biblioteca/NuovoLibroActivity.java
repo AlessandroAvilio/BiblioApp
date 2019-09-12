@@ -1,6 +1,5 @@
 package com.example.biblioteca;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,14 +18,14 @@ public class NuovoLibroActivity extends AppCompatActivity {
     private EditText campoAnno;
     private Button nuovoLibro;
 
-    LibriDB libriDB;
+    BiblioDB biblioDB;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nuovo_libro);
-        libriDB = new LibriDB(this);
+        biblioDB = new BiblioDB(this);
 
         campoTitolo = findViewById(R.id.titleField);
         campoAutore = findViewById(R.id.authorField);
@@ -59,12 +58,13 @@ public class NuovoLibroActivity extends AppCompatActivity {
                 libro.setGenere(genere);
                 libro.setAnnoPubblicazione(anno);
 
-                long val = libriDB.inserisciLibro(libro);
+
+                long val = biblioDB.inserisciLibro(libro);
                 if(val > 0){
                     Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro inserito", Toast.LENGTH_SHORT);
                     inserimento.show();
-                    Intent intent = new Intent(NuovoLibroActivity.this, HomePageActivity.class);
-                    startActivity(intent);
+                    //Intent intent = new Intent(NuovoLibroActivity.this, HomePageActivity.class);
+                    //startActivity(intent);
                 }else{
                     Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro NON inserito", Toast.LENGTH_SHORT);
                     inserimento.show();

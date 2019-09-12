@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -15,13 +16,25 @@ public class HomePageActivity extends AppCompatActivity {
     private Button eliminaLibro;
     private Button ricercaLibro;
     private Button mostraCatalogo;
-    LibriDB libriDB;
+    private Button prestitoLibro;
+    private Button cancellaBtn;
+    private Button cercaUtenteBtn;
+    private TextView userMail;
+    Intent i;
+
+    BiblioDB biblioDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
-        libriDB = new LibriDB(this);
+        biblioDB = new BiblioDB(this);
+
+        userMail = findViewById(R.id.emailUserField);
+        i = getIntent();
+        String mailExtra = i.getStringExtra("Utente");
+        userMail.setText(mailExtra);
+
 
         aggiungiLibro = findViewById(R.id.aggiungiLibro);
         aggiungiLibro.setOnClickListener(new View.OnClickListener() {
@@ -30,6 +43,7 @@ public class HomePageActivity extends AppCompatActivity {
                 apriAggiungiLibro();
             }
         });
+
 
         eliminaLibro = findViewById(R.id.eliminaLibro);
         eliminaLibro.setOnClickListener(new View.OnClickListener() {
@@ -47,19 +61,27 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
+        cercaUtenteBtn = findViewById(R.id.cercaUtenteBtn);
+        cercaUtenteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                apriCercaUtente();
+            }
+        });
+
         mostraCatalogo = findViewById(R.id.mostraCatalogoBtn);
         mostraCatalogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor cur = libriDB.mostraCatalogo();
+                Cursor cur = biblioDB.mostraCatalogo();
                 if(cur.getCount() == 0){
                     Toast cerca = Toast.makeText(HomePageActivity.this, "Questo libro non è presente nel catalogo", Toast.LENGTH_SHORT);
                     cerca.show();
                 }else{
                     StringBuffer buffer = new StringBuffer();
                     while(cur.moveToNext()){
-                        buffer.append("titolo : " + cur.getString(1) + "\n");
-                        buffer.append("autore : " + cur.getString(2) + "\n");
+                        buffer.append("titolo : " + cur.getString(2) + "\n");
+                        buffer.append("autore : " + cur.getString(1) + "\n");
                         buffer.append("copie prestate : " + cur.getString(3) + "\n");
                         buffer.append("copie presenti : " + cur.getString(4) + "\n");
                         buffer.append("anno pubblicazione : " + cur.getString(5) + "\n");
@@ -70,6 +92,33 @@ public class HomePageActivity extends AppCompatActivity {
                 }
             }
         });
+
+        prestitoLibro = findViewById(R.id.prestitoBtn);
+        prestitoLibro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                apriPrestitoLibro();
+            }
+        });
+
+
+        cancellaBtn = findViewById(R.id.cancBtn);
+        cancellaBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                biblioDB.cancellaTabella();
+            }
+        });
+
+        Cursor cursor = biblioDB.restituisciPermessi(mailExtra);
+        cursor.moveToFirst();
+        String permessi = cursor.getString(0);
+        if(permessi.equals("Admin")){
+            aggiungiLibro.setVisibility(View.VISIBLE);
+            eliminaLibro.setVisibility(View.VISIBLE);
+            prestitoLibro.setVisibility(View.INVISIBLE);
+            cercaUtenteBtn.setVisibility(View.VISIBLE);
+        }
     }
 
     public void apriAggiungiLibro(){
@@ -83,7 +132,22 @@ public class HomePageActivity extends AppCompatActivity {
     }
 
     public void apriRicercaLibro(){
+        Cursor cursor = biblioDB.restituisciCodiceFiscale(userMail.getText().toString().trim());
+        cursor.moveToFirst();
+        String cf = cursor.getString(0);
         Intent intent = new Intent(this, RicercaTitoloActivity.class);
+        intent.putExtra("CF", cf);
+        startActivity(intent);
+    }
+
+    public void apriPrestitoLibro(){
+        Intent intent = new Intent(this, PrestitoLibroActivity.class);
+        intent.putExtra("Utente", userMail.getText().toString());
+        startActivity(intent);
+    }
+
+    public void apriCercaUtente(){
+        Intent intent = new Intent(this, CercaUtenteActivity.class);
         startActivity(intent);
     }
 

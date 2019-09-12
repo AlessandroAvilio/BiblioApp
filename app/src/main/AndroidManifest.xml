@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RicercaTitoloActivity"></activity>
+        <activity android:name=".CercaUtenteActivity"></activity>
+        <activity android:name=".PrestitoLibroActivity" />
+        <activity android:name=".RicercaTitoloActivity" />
         <activity android:name=".EliminaLibroActivity" />
         <activity android:name=".NuovoLibroActivity" />
         <activity android:name=".HomePageActivity" />
