@@ -41,6 +41,7 @@ public class BiblioDB extends SQLiteOpenHelper {
 
     public BiblioDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        setWriteAheadLoggingEnabled(false);
     }
 
     @Override
@@ -60,13 +61,12 @@ public class BiblioDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long inserisciUtente(Utente utente) {     //Richiesto un oggetto di classe utente. Inserisce tutti gli attributi di utente all'interno delle colonne definite all'interno di values.put
+   public long inserisciUtente(Utente utente) {     //Richiesto un oggetto di classe utente. Inserisce tutti gli attributi di utente all'interno delle colonne definite all'interno di values.put
         SQLiteDatabase db = this.getWritableDatabase();        //getWritableDatabase per creare oppure aprire un database per lettura e scrittura
         ContentValues values = new ContentValues();
         values.put(COL_NOME, utente.getNome());
         values.put(COL_COGNOME, utente.getCognome());
         values.put(COL_CODICEFISCALE, utente.getCodiceFiscale());
-        //values.put(COL_DATANASCITA.toString(), utente.getNascita());
         values.put(COL_TIPOUTENZA, utente.getTipoUtenza());
         values.put(COL_PRESTITI, utente.getCountPrestiti());
         values.put(COL_PUNTITESSERA, utente.getTesseraPunti());
@@ -74,8 +74,16 @@ public class BiblioDB extends SQLiteOpenHelper {
         values.put(COL_PASSWORD, utente.getPassword());
         values.put(COL_PERMESSI, utente.getPermessi());
         long result = db.insert(USER_TABLE, null, values);    //insert inserisce all'interno della tabella descritta il contenuto di values. Inserisce quindi una nuova riga di Utente nella usertable
-        db.close();
         return result;
+        /*db.beginTransactionNonExclusive();
+        try {
+            long result = db.insert(USER_TABLE, null, values);    //insert inserisce all'interno della tabella descritta il contenuto di values. Inserisce quindi una nuova riga di Utente nella usertable
+            db.setTransactionSuccessful();
+            return result;
+        }finally {
+            db.endTransaction();
+            db.close();
+        }*/
     }
 
     public long inserisciLibro(Libro libro) {
@@ -87,8 +95,16 @@ public class BiblioDB extends SQLiteOpenHelper {
         values.put(COL_COPIEPRESENTI, libro.getnCopieIn());
         values.put(COL_ANNOPUBBLICAZIONE, libro.getAnnoPubblicazione());
         values.put(COL_GENERE, libro.getGenere());
+        /*db.beginTransactionNonExclusive();
+        try {
+            long result = db.insert(BOOKS_TABLE, null, values);
+            db.setTransactionSuccessful();
+            return result;
+        }finally {
+            db.endTransaction();
+            db.close();
+        }*/
         long result = db.insert(BOOKS_TABLE, null, values);
-        db.close();
         return result;
     }
 
@@ -236,7 +252,21 @@ public class BiblioDB extends SQLiteOpenHelper {
         int idLibro = cursor.getInt(0);
         values.put(COL_ROWIDLIBRO, idLibro);
         long result = db.insert(USERS_BOOKS_TABLE, null, values);
-        db.close();
         return result;
+    }
+
+    public Cursor getLibroPrestato(String mail){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "email=?", new String[]{mail}, null, null, null);
+        cursor.moveToFirst();
+        String cf = cursor.getString(0);
+        cursor = db.query("users_books_table", new String[]{COL_CFUTENTE}, "codicefiscale=?", new String[]{cf}, null, null, null);
+        return cursor;
+    }
+
+    public Cursor cercaUtente(String cf){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "codicefiscale=?", new String[]{cf}, null, null, null);
+        return cursor;
     }
 }

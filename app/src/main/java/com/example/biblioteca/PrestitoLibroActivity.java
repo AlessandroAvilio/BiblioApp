@@ -37,29 +37,37 @@ public class PrestitoLibroActivity extends AppCompatActivity {
         cercaLibroDaPrestare = findViewById(R.id.ricercaLibroPrestitoField);
         prestaLibroBtn = findViewById(R.id.cercaLibroPrestitoBtn);
 
+
         prestaLibroBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Cursor cur = biblioDB.ricercaTitolo(cercaLibroDaPrestare.getText().toString().trim());
+                int libriPresenti = biblioDB.getCounterCopiePresenti(cercaLibroDaPrestare.getText().toString().trim());
                 if(cur.getCount() == 0){
                     Toast cerca = Toast.makeText(PrestitoLibroActivity.this, "Questo libro non è presente nel catalogo", Toast.LENGTH_SHORT);
                     cerca.show();
-                }else{
-                    //utente.setCountPrestiti(utente.getCountPrestiti());
+                }else if(libriPresenti == 0){
+                    Toast noCopies = Toast.makeText(PrestitoLibroActivity.this, "Non sono più disponibili copie di questo libro", Toast.LENGTH_SHORT);
+                    noCopies.show();
+                    }
+                    else{
                     int val1 = biblioDB.effettuaPrestito(mail);
                     int val2 = biblioDB.contaCopiePrestate(cercaLibroDaPrestare.getText().toString());
                     int val3 = biblioDB.contaCopiePresenti(cercaLibroDaPrestare.getText().toString());
-                    long val4 = biblioDB.associaLibroAUtente(cercaLibroDaPrestare.getText().toString().trim(),mail);
-                    if((val1 > 0)&&(val2 > 0)&&(val3 > 0)&&(val4 > 0)){
-                        Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Prestito effettuato", Toast.LENGTH_SHORT);
-                        inserimento.show();
-                        //Intent intent = new Intent(PrestitoLibroActivity.this, LoginActivity.class);
-                        //startActivity(intent);
+                    Cursor cursor = biblioDB.getLibroPrestato(mail);
+                    if(cursor.getCount() == 0) {
+                        long val4 = biblioDB.associaLibroAUtente(cercaLibroDaPrestare.getText().toString().trim(), mail);
+                        if ((val1 > 0) && (val2 > 0) && (val3 > 0) && (val4 > 0)) {
+                            Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Prestito effettuato", Toast.LENGTH_SHORT);
+                            inserimento.show();
+                        } else {
+                            Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Errore", Toast.LENGTH_SHORT);
+                            inserimento.show();
+                        }
                     }else{
-                        Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Errore", Toast.LENGTH_SHORT);
+                        Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "L'utente possiede già una copia di questo libro.", Toast.LENGTH_SHORT);
                         inserimento.show();
                     }
-
                 }
             }
         });

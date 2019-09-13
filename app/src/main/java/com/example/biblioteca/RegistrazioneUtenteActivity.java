@@ -27,13 +27,13 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
     private Button conferma;
 
 
-    BiblioDB userDB;      //crea un oggetto di classe BiblioDB. Necessario per poter inserire una nuova utenza tramite il metodo inserisciUtente
+    BiblioDB biblioDB;      //crea un oggetto di classe BiblioDB. Necessario per poter inserire una nuova utenza tramite il metodo inserisciUtente
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrazione_utente);
-        userDB = new BiblioDB(this);
+        biblioDB = new BiblioDB(this);
 
 
         campoNome = findViewById(R.id.titleField);
@@ -84,9 +84,19 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
                         utente.impostaAdmin(utente.getPermessi());
                     }
 
+                    /*biblioDB.inerisciUtente(utente);
+                    Cursor cursor = biblioDB.cercaUtente(utente.getCodiceFiscale());
+                    if(cursor.getCount() == 0){
+                        Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente NON registrato", Toast.LENGTH_SHORT);
+                        inserimento.show();
+                    }else{
+                        Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente registrato", Toast.LENGTH_SHORT);
+                        inserimento.show();
+                        Intent intent = new Intent(RegistrazioneUtenteActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                    }*/
 
-
-                    long val = userDB.inserisciUtente(utente);
+                   long val = biblioDB.inserisciUtente(utente);
                     if(val > 0){
                         Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente registrato", Toast.LENGTH_SHORT);
                         inserimento.show();
@@ -96,15 +106,15 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
                         Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente NON registrato", Toast.LENGTH_SHORT);
                         inserimento.show();
                     }
-                    userDB.inserisciUtente(utente);
-
                 }else{
                     Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Le password non coincidono, oppure non inserita nel formato corretto", Toast.LENGTH_SHORT);
                     inserimento.show();
                 }
             }
         });
+
     }
+
 
     private TextWatcher registrazioneTextWatcher = new TextWatcher() {      //metodo che permette di abilitare il tasto di conferma, una volta inseriti tutti i campi nel form
         @Override

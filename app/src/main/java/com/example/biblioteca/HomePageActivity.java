@@ -19,6 +19,7 @@ public class HomePageActivity extends AppCompatActivity {
     private Button prestitoLibro;
     private Button cancellaBtn;
     private Button cercaUtenteBtn;
+    private Button ritiroBtn;
     private TextView userMail;
     Intent i;
 
@@ -30,10 +31,10 @@ public class HomePageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home_page);
         biblioDB = new BiblioDB(this);
 
-        userMail = findViewById(R.id.emailUserField);
+        userMail = findViewById(R.id.);
         i = getIntent();
         String mailExtra = i.getStringExtra("Utente");
-        userMail.setText(mailExtra);
+        //userMail.setText(mailExtra);
 
 
         aggiungiLibro = findViewById(R.id.aggiungiLibro);
@@ -110,6 +111,14 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
+        ritiroBtn = findViewById(R.id.ritiroBtn);
+        ritiroBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                apriRitiroLibri();
+            }
+        });
+
         Cursor cursor = biblioDB.restituisciPermessi(mailExtra);
         cursor.moveToFirst();
         String permessi = cursor.getString(0);
@@ -142,12 +151,17 @@ public class HomePageActivity extends AppCompatActivity {
 
     public void apriPrestitoLibro(){
         Intent intent = new Intent(this, PrestitoLibroActivity.class);
-        intent.putExtra("Utente", userMail.getText().toString());
+        intent.putExtra("Utente", );
         startActivity(intent);
     }
 
     public void apriCercaUtente(){
         Intent intent = new Intent(this, CercaUtenteActivity.class);
+        startActivity(intent);
+    }
+
+    public void apriRitiroLibri(){
+        Intent intent = new Intent(this, RitiroLibriActivity.class);
         startActivity(intent);
     }
 
