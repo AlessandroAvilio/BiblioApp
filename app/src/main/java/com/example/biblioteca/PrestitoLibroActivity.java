@@ -28,14 +28,14 @@ public class PrestitoLibroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prestito_libro);
         biblioDB = new BiblioDB(this);
-        userMail = findViewById(R.id.emailUserField_2);
+        userMail = findViewById(R.id.mailUserField_2);
         i = getIntent();
         userMail.setText(i.getStringExtra("Utente"));
         mail = i.getStringExtra("Utente");
         utente = new Utente();
 
-        cercaLibroDaPrestare = findViewById(R.id.ricercaLibroPrestitoField);
-        prestaLibroBtn = findViewById(R.id.cercaLibroPrestitoBtn);
+        cercaLibroDaPrestare = findViewById(R.id.titoloDaRitirare);
+        prestaLibroBtn = findViewById(R.id.prestitoBtn);
 
 
         prestaLibroBtn.setOnClickListener(new View.OnClickListener() {
@@ -51,11 +51,14 @@ public class PrestitoLibroActivity extends AppCompatActivity {
                     noCopies.show();
                     }
                     else{
-                    int val1 = biblioDB.effettuaPrestito(mail);
-                    int val2 = biblioDB.contaCopiePrestate(cercaLibroDaPrestare.getText().toString());
-                    int val3 = biblioDB.contaCopiePresenti(cercaLibroDaPrestare.getText().toString());
-                    Cursor cursor = biblioDB.getLibroPrestato(mail);
-                    if(cursor.getCount() == 0) {
+                    //Cursor cursor = biblioDB.getLibroPrestato(mail);
+                    boolean checkEsistenzaID = biblioDB.controllaPresenzaLibro(mail, cercaLibroDaPrestare.getText().toString());
+
+                    //if(cursor.getCount() == 0) {
+                    if(checkEsistenzaID == false){
+                        int val1 = biblioDB.effettuaPrestito(mail);
+                        int val2 = biblioDB.aumentaCopiePrestate(cercaLibroDaPrestare.getText().toString());
+                        int val3 = biblioDB.diminuisciCopiePresenti(cercaLibroDaPrestare.getText().toString());
                         long val4 = biblioDB.associaLibroAUtente(cercaLibroDaPrestare.getText().toString().trim(), mail);
                         if ((val1 > 0) && (val2 > 0) && (val3 > 0) && (val4 > 0)) {
                             Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Prestito effettuato", Toast.LENGTH_SHORT);

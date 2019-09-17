@@ -1,9 +1,6 @@
 package com.example.biblioteca;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,46 +20,28 @@ public class EliminaLibroActivity extends AppCompatActivity {
         biblioDB = new BiblioDB(this);
 
         ricercaLibro = findViewById(R.id.ricercaLibroPrestitoField);
-                    eliminaBtn = findViewById(R.id.cercaLibroPrestitoBtn);
-
-                    ricercaLibro.addTextChangedListener(eliminaLibroTW);
-
-                    eliminaBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            String titolo = ricercaLibro.getText().toString().trim();
+        eliminaBtn = findViewById(R.id.cercaLibroPrestitoBtn);
 
 
-                            Integer val = biblioDB.eliminaLibro(titolo);
-                            if(val > 0 ){
-                                Toast dismissione = Toast.makeText(EliminaLibroActivity.this, "Libro dismesso", Toast.LENGTH_SHORT);
-                                dismissione.show();
-                    Intent intent = new Intent(EliminaLibroActivity.this, HomePageActivity.class);
-                    startActivity(intent);
+
+        eliminaBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String titolo = ricercaLibro.getText().toString().trim();
+
+
+                Integer val = biblioDB.eliminaLibro(titolo);
+                if(val > 0 ){
+                    Toast dismissione_avvenuta = Toast.makeText(EliminaLibroActivity.this, "Libro dismesso", Toast.LENGTH_SHORT);
+                    dismissione_avvenuta.show();
                 }else{
-                    Toast dismissione = Toast.makeText(EliminaLibroActivity.this, "Errore durante la dismissione", Toast.LENGTH_SHORT);
-                    dismissione.show();
+                    Toast errore_dismissione = Toast.makeText(EliminaLibroActivity.this, "Errore durante la dismissione", Toast.LENGTH_SHORT);
+                    errore_dismissione.show();
                 }
             }
         });
 
     }
 
-    private TextWatcher eliminaLibroTW = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            String title = ricercaLibro.getText().toString().trim();
-            eliminaBtn.setEnabled(!title.isEmpty());
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-
-        }
-    };
 }

@@ -75,15 +75,6 @@ public class BiblioDB extends SQLiteOpenHelper {
         values.put(COL_PERMESSI, utente.getPermessi());
         long result = db.insert(USER_TABLE, null, values);    //insert inserisce all'interno della tabella descritta il contenuto di values. Inserisce quindi una nuova riga di Utente nella usertable
         return result;
-        /*db.beginTransactionNonExclusive();
-        try {
-            long result = db.insert(USER_TABLE, null, values);    //insert inserisce all'interno della tabella descritta il contenuto di values. Inserisce quindi una nuova riga di Utente nella usertable
-            db.setTransactionSuccessful();
-            return result;
-        }finally {
-            db.endTransaction();
-            db.close();
-        }*/
     }
 
     public long inserisciLibro(Libro libro) {
@@ -95,15 +86,6 @@ public class BiblioDB extends SQLiteOpenHelper {
         values.put(COL_COPIEPRESENTI, libro.getnCopieIn());
         values.put(COL_ANNOPUBBLICAZIONE, libro.getAnnoPubblicazione());
         values.put(COL_GENERE, libro.getGenere());
-        /*db.beginTransactionNonExclusive();
-        try {
-            long result = db.insert(BOOKS_TABLE, null, values);
-            db.setTransactionSuccessful();
-            return result;
-        }finally {
-            db.endTransaction();
-            db.close();
-        }*/
         long result = db.insert(BOOKS_TABLE, null, values);
         return result;
     }
@@ -195,10 +177,21 @@ public class BiblioDB extends SQLiteOpenHelper {
         return output;
     }
 
-    public int contaCopiePrestate(String titolo) {
+    public int aumentaCopiePrestate(String titolo) {
         SQLiteDatabase db = this.getWritableDatabase();
         int countCopiePrestate = getCounterCopiePrestate(titolo);
         int copiePrestate = ++countCopiePrestate;
+        ContentValues values = new ContentValues();
+        values.put(COL_COPIEPRESTATE, copiePrestate);
+        int res = db.update("booktable", values, "titolo=?", new String[]{titolo});
+        db.close();
+        return res;
+    }
+
+    public int diminuisciCopiePrestate(String titolo) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int countCopiePrestate = getCounterCopiePrestate(titolo);
+        int copiePrestate = --countCopiePrestate;
         ContentValues values = new ContentValues();
         values.put(COL_COPIEPRESTATE, copiePrestate);
         int res = db.update("booktable", values, "titolo=?", new String[]{titolo});
@@ -217,7 +210,18 @@ public class BiblioDB extends SQLiteOpenHelper {
         return output;
     }
 
-    public int contaCopiePresenti(String titolo) {
+    public int aumentaCopiePresenti(String titolo) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int countCopiePresenti = getCounterCopiePresenti(titolo);
+        int copiePresenti = ++countCopiePresenti;
+        ContentValues values = new ContentValues();
+        values.put(COL_COPIEPRESENTI, copiePresenti);
+        int res = db.update("booktable", values, "titolo=?", new String[]{titolo});
+        db.close();
+        return res;
+    }
+
+    public int diminuisciCopiePresenti(String titolo) {
         SQLiteDatabase db = this.getWritableDatabase();
         int countCopiePresenti = getCounterCopiePresenti(titolo);
         int copiePresenti = --countCopiePresenti;
@@ -240,6 +244,12 @@ public class BiblioDB extends SQLiteOpenHelper {
         return cursor;
     }
 
+    public Cursor resituisciIDLibroDaBooktable(String titolo){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor idCursor = db.query("booktable", new String[]{COL_IDLIBRO}, "titolo=?", new String[]{titolo}, null, null, null);
+        return idCursor;
+    }
+
     public long associaLibroAUtente(String titolo, String mail) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -255,13 +265,61 @@ public class BiblioDB extends SQLiteOpenHelper {
         return result;
     }
 
-    public Cursor getLibroPrestato(String mail){
+    /*public Cursor getLibroPrestato(String mail){
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "email=?", new String[]{mail}, null, null, null);
         cursor.moveToFirst();
         String cf = cursor.getString(0);
-        cursor = db.query("users_books_table", new String[]{COL_CFUTENTE}, "codicefiscale=?", new String[]{cf}, null, null, null);
+        cursor = db.query("users_books_table", new String[]{COL_ROWIDLIBRO}, "codicefiscale=?", new String[]{cf}, null, null, null);
         return cursor;
+    }*/
+
+    public boolean controllaPresenzaLibro(String mail, String titolo){
+        boolean boole = false;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cfCursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "email=?", new String[]{mail}, null, null, null);
+        cfCursor.moveToFirst();
+        String cf = cfCursor.getString(0);
+        cfCursor.close();
+        Cursor idCursor = db.query("booktable", new String[]{COL_IDLIBRO}, "titolo=?", new String[]{titolo}, null, null, null);
+        idCursor.moveToFirst();
+        int idLibro = idCursor.getInt(0);
+        idCursor.close();
+        Cursor findIdCursor = db.query("users_books_table", new String[]{COL_ROWIDLIBRO}, "codicefiscale=?", new String[]{cf}, null, null, null);
+        //int findId = findIdCursor.getInt(0);
+        while (findIdCursor.moveToNext()) {
+            int i = 0;
+            if (findIdCursor.getInt(i) == idLibro){
+                boole = true;
+                findIdCursor.close();
+                break;
+            }
+        }
+        return boole;
+    }
+
+    public int ritiraLibro(String titolo, String mail){
+        SQLiteDatabase db = this.getWritableDatabase();
+        int res = 0;
+        Cursor cfCursor = restituisciCodiceFiscale(mail);
+        cfCursor.moveToFirst();
+        String cf = cfCursor.getString(0);
+        cfCursor.close();
+        Cursor idCursor = db.query("booktable", new String[]{COL_IDLIBRO}, "titolo=?", new String[]{titolo}, null, null, null);
+        idCursor.moveToFirst();
+        int idLibro = idCursor.getInt(0);
+        idCursor.close();
+        Cursor idLibriPrestati = db.query("users_books_table", new String[]{COL_ROWIDLIBRO}, "codicefiscale=?", new String []{cf}, null, null, null);
+        while(idLibriPrestati.moveToNext()){
+            int i = 0;
+            if(idLibriPrestati.getInt(i) == idLibro){
+                res = db.delete("users_books_table", "id=? AND codicefiscale=?", new String[]{String.valueOf(idLibro), cf});
+                idLibriPrestati.close();
+                break;
+            }
+        }
+
+        return res;
     }
 
     public Cursor cercaUtente(String cf){

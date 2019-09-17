@@ -31,10 +31,10 @@ public class HomePageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home_page);
         biblioDB = new BiblioDB(this);
 
-        userMail = findViewById(R.id.);
+        userMail = findViewById(R.id.mailUserField_2);
         i = getIntent();
         String mailExtra = i.getStringExtra("Utente");
-        //userMail.setText(mailExtra);
+        userMail.setText(mailExtra);
 
 
         aggiungiLibro = findViewById(R.id.aggiungiLibro);
@@ -151,7 +151,7 @@ public class HomePageActivity extends AppCompatActivity {
 
     public void apriPrestitoLibro(){
         Intent intent = new Intent(this, PrestitoLibroActivity.class);
-        intent.putExtra("Utente", );
+        intent.putExtra("Utente", userMail.getText().toString());
         startActivity(intent);
     }
 
@@ -162,6 +162,7 @@ public class HomePageActivity extends AppCompatActivity {
 
     public void apriRitiroLibri(){
         Intent intent = new Intent(this, RitiroLibriActivity.class);
+        intent.putExtra("Utente", userMail.getText().toString());
         startActivity(intent);
     }
 
