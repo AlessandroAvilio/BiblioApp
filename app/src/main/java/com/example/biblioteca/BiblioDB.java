@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 public class BiblioDB extends SQLiteOpenHelper {
     private static final String TAG = "BiblioDB";
 
@@ -133,11 +135,41 @@ public class BiblioDB extends SQLiteOpenHelper {
         return res;
     }
 
-
-    public Integer eliminaLibro(String titolo) {
+    public int impostaUtenzaInOro(String mail){
         SQLiteDatabase db = this.getWritableDatabase();
-        int res = db.delete(BOOKS_TABLE, "titolo = ?", new String[]{titolo});
+        ContentValues values = new ContentValues();
+
+        Utente utente = new Utente();
+        utente.cambiaInOro(utente.getTipoUtenza());
+        values.put(COL_TIPOUTENZA, utente.getTipoUtenza());
+        int res = db.update("usertable", values, "email=?", new String[]{mail});
         db.close();
+        return res;
+    }
+
+    public String getTipoUtenza(String mail){
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query("usertable", new String[]{COL_TIPOUTENZA}, "email=?", new String[]{mail}, null, null, null);
+        cursor.moveToFirst();
+        String utenza = cursor.getString(0);
+
+        return utenza;
+    }
+
+
+    public int eliminaLibro(String titolo) {
+        int res = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor copiePrestateCur = db.query("booktable", new String[]{COL_COPIEPRESTATE}, "titolo=?", new String[]{titolo}, null, null, null);
+        copiePrestateCur.moveToFirst();
+        int copiePrestate = copiePrestateCur.getInt(0);
+        copiePrestateCur.close();
+        if(copiePrestate != 0){
+            return res;
+        }else{
+            res = db.delete(BOOKS_TABLE, "titolo = ?", new String[]{titolo});
+            db.close();
+        }
         return res;
     }
 
@@ -145,7 +177,19 @@ public class BiblioDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM booktable WHERE titolo=" + "'" + titolo + "'", null);
         //Cursor res = db.query("booktable", new String[]{COL_TITOLO}, "titolo=?", new String[]{titolo}, null, null, null);
+
         return res;
+    }
+
+    public boolean verificaEsistenzaTitolo(String titolo){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM booktable WHERE titolo="+"'"+titolo+"'", null);
+        if(cursor.getCount() <= 0){
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
     }
 
     public Cursor mostraCatalogo() {
@@ -153,6 +197,29 @@ public class BiblioDB extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("select * from booktable", null);
         return res;
     }
+
+    public Cursor mostraUtenti(String titolo){
+        Cursor mostraUtentiCursor = null;
+        String character = "'";
+        ArrayList<String> cf = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor idLibroCursor = db.rawQuery("SELECT id FROM booktable WHERE titolo="+"'"+titolo+"'", null);
+        idLibroCursor.moveToFirst();
+        int idLibro = idLibroCursor.getInt(0);
+        idLibroCursor.close();
+        Cursor userCursor = db.rawQuery("SELECT codicefiscale FROM users_books_table WHERE id="+idLibro, null);
+        while(userCursor.moveToNext()){
+            int i = 0;
+            cf.add("'"+userCursor.getString(0)+"'");
+
+        }
+
+        String cfString = String.join(",", cf);
+
+        mostraUtentiCursor = db.rawQuery("SELECT * FROM usertable WHERE codicefiscale IN ("+cfString+")", null);
+        return mostraUtentiCursor;
+    }
+
 
     public void cancellaTabella() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -221,6 +288,20 @@ public class BiblioDB extends SQLiteOpenHelper {
         return res;
     }
 
+    public int aumentaTesseraPunti(String mail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query("usertable", new String[]{COL_PUNTITESSERA}, "email=?", new String[]{mail}, null, null, null);
+        cursor.moveToFirst();
+        int tessera = cursor.getInt(0);
+        int counterPuntiTessera = ++tessera;
+        cursor.close();
+        ContentValues values = new ContentValues();
+        values.put(COL_PUNTITESSERA, counterPuntiTessera);
+        int res = db.update("usertable", values, "email=?", new String[]{mail});
+        db.close();
+        return res;
+    }
+
     public int diminuisciCopiePresenti(String titolo) {
         SQLiteDatabase db = this.getWritableDatabase();
         int countCopiePresenti = getCounterCopiePresenti(titolo);
@@ -244,12 +325,6 @@ public class BiblioDB extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor resituisciIDLibroDaBooktable(String titolo){
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor idCursor = db.query("booktable", new String[]{COL_IDLIBRO}, "titolo=?", new String[]{titolo}, null, null, null);
-        return idCursor;
-    }
-
     public long associaLibroAUtente(String titolo, String mail) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -264,15 +339,6 @@ public class BiblioDB extends SQLiteOpenHelper {
         long result = db.insert(USERS_BOOKS_TABLE, null, values);
         return result;
     }
-
-    /*public Cursor getLibroPrestato(String mail){
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "email=?", new String[]{mail}, null, null, null);
-        cursor.moveToFirst();
-        String cf = cursor.getString(0);
-        cursor = db.query("users_books_table", new String[]{COL_ROWIDLIBRO}, "codicefiscale=?", new String[]{cf}, null, null, null);
-        return cursor;
-    }*/
 
     public boolean controllaPresenzaLibro(String mail, String titolo){
         boolean boole = false;
@@ -320,11 +386,5 @@ public class BiblioDB extends SQLiteOpenHelper {
         }
 
         return res;
-    }
-
-    public Cursor cercaUtente(String cf){
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.query("usertable", new String[]{COL_CODICEFISCALE}, "codicefiscale=?", new String[]{cf}, null, null, null);
-        return cursor;
     }
 }

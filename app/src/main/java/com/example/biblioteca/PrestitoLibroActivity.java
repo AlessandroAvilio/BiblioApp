@@ -11,17 +11,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.ArrayList;
-
 public class PrestitoLibroActivity extends AppCompatActivity {
     private EditText cercaLibroDaPrestare;
     private Button prestaLibroBtn;
-    private ArrayList<Integer> listaIdLibri;
-    Intent i;
+    private Intent i;
     private TextView userMail;
-    Utente utente;
-    BiblioDB biblioDB;
+    private Utente utente;
+    private BiblioDB biblioDB;
     private String mail;
+    private int counterPrestitiEffettuati = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +49,9 @@ public class PrestitoLibroActivity extends AppCompatActivity {
                     noCopies.show();
                     }
                     else{
-                    //Cursor cursor = biblioDB.getLibroPrestato(mail);
+
                     boolean checkEsistenzaID = biblioDB.controllaPresenzaLibro(mail, cercaLibroDaPrestare.getText().toString());
 
-                    //if(cursor.getCount() == 0) {
                     if(checkEsistenzaID == false){
                         int val1 = biblioDB.effettuaPrestito(mail);
                         int val2 = biblioDB.aumentaCopiePrestate(cercaLibroDaPrestare.getText().toString());
@@ -63,6 +60,23 @@ public class PrestitoLibroActivity extends AppCompatActivity {
                         if ((val1 > 0) && (val2 > 0) && (val3 > 0) && (val4 > 0)) {
                             Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Prestito effettuato", Toast.LENGTH_SHORT);
                             inserimento.show();
+
+                            String utenza = biblioDB.getTipoUtenza(mail);
+
+                            if(utenza.equals("Oro")){
+                                biblioDB.aumentaTesseraPunti(mail);
+                            }
+
+                            counterPrestitiEffettuati = biblioDB.getCounterPrestiti(mail);
+
+                            if(counterPrestitiEffettuati == 5){
+                                int conferma = biblioDB.impostaUtenzaInOro(mail);
+                                if(conferma > 0){
+                                    Toast cambioTIpoUtenza = Toast.makeText(PrestitoLibroActivity.this, "Congratulazioni! Hai appena ottenuto la tua tessera punti con il tuo quindi prestito!", Toast.LENGTH_SHORT);
+                                    cambioTIpoUtenza.show();
+                                }
+                            }
+
                         } else {
                             Toast inserimento = Toast.makeText(PrestitoLibroActivity.this, "Errore", Toast.LENGTH_SHORT);
                             inserimento.show();

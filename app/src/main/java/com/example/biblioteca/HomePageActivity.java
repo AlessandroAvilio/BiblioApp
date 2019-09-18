@@ -157,6 +157,7 @@ public class HomePageActivity extends AppCompatActivity {
 
     public void apriCercaUtente(){
         Intent intent = new Intent(this, CercaUtenteActivity.class);
+        intent.putExtra("Utente", userMail.getText().toString());
         startActivity(intent);
     }
 
