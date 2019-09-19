@@ -47,8 +47,13 @@ public class CercaUtenteActivity extends AppCompatActivity {
                         buffer.append("genere : " + cursor.getString(6) + "\n\n");
                     }
 
-                    showMessage("Info", buffer.toString());
+                    if(cursor.getCount() == 0){
+                        Toast titolo_non_trovato = Toast.makeText(CercaUtenteActivity.this, "Nessun utente registrato è in possesso di una copia di questo libro.", Toast.LENGTH_SHORT);
+                        titolo_non_trovato.show();
+                    }else {
 
+                        showMessage("Info", buffer.toString());
+                    }
                 }else{
                     Toast titolo_non_trovato = Toast.makeText(CercaUtenteActivity.this, "Titolo non presente nel catalogo", Toast.LENGTH_SHORT);
                     titolo_non_trovato.show();

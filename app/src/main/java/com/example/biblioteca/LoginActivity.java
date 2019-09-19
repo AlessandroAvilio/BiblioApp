@@ -111,6 +111,8 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, HomePageActivity.class);
         intent.putExtra("Utente", email.getText().toString());
         startActivity(intent);
+        email.setText("");
+        password.setText("");
     }
 
     public void apriRegistraUtente(){

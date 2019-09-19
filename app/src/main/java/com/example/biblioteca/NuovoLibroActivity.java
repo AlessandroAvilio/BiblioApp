@@ -1,5 +1,6 @@
 package com.example.biblioteca;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,6 +18,7 @@ public class NuovoLibroActivity extends AppCompatActivity {
     private EditText campoGenere;
     private EditText campoAnno;
     private Button nuovoLibro;
+    int anno, copieIn;
 
     BiblioDB biblioDB;
 
@@ -45,29 +47,46 @@ public class NuovoLibroActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String titolo = campoTitolo.getText().toString().trim();
                 String autore = campoAutore.getText().toString().trim();
-                int copieIn = Integer.parseInt(campoCopiePresenti.getText().toString().trim());
                 String genere = campoGenere.getText().toString().trim();
-                int anno = Integer.parseInt(campoAnno.getText().toString().trim());
+                try {
+                    copieIn = Integer.parseInt(campoCopiePresenti.getText().toString().trim());
+                    anno = Integer.parseInt(campoAnno.getText().toString().trim());
 
-                Libro libro = new Libro();
+                    if(copieIn <= 0){
+                        Toast nessuna_copia = Toast.makeText(NuovoLibroActivity.this, "Inserire almeno 1 copia.", Toast.LENGTH_SHORT);
+                        nessuna_copia.show();
+                    }else {
 
-                libro.setTitolo(titolo);
-                libro.setAutore(autore);
-                libro.setnCopieOut(0);
-                libro.setnCopieIn(copieIn);
-                libro.setGenere(genere);
-                libro.setAnnoPubblicazione(anno);
+                        Libro libro = new Libro();
 
+                        libro.setTitolo(titolo);
+                        libro.setAutore(autore);
+                        libro.setnCopieOut(0);
+                        libro.setnCopieIn(copieIn);
+                        libro.setGenere(genere);
+                        libro.setAnnoPubblicazione(anno);
 
-                long val = biblioDB.inserisciLibro(libro);
-                if(val > 0){
-                    Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro inserito", Toast.LENGTH_SHORT);
-                    inserimento.show();
-                    //Intent intent = new Intent(NuovoLibroActivity.this, HomePageActivity.class);
-                    //startActivity(intent);
-                }else{
-                    Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro NON inserito", Toast.LENGTH_SHORT);
-                    inserimento.show();
+                        Cursor cursor = biblioDB.ricercaTitolo(titolo);
+                        cursor.moveToFirst();
+                        if(cursor.getCount() == 0) {
+
+                            long val = biblioDB.inserisciLibro(libro);
+                            if (val > 0) {
+                                Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro inserito", Toast.LENGTH_SHORT);
+                                inserimento.show();
+
+                            } else {
+                                Toast inserimento = Toast.makeText(NuovoLibroActivity.this, "Libro NON inserito", Toast.LENGTH_SHORT);
+                                inserimento.show();
+                            }
+                        }else{
+                            Toast libro_esistente = Toast.makeText(NuovoLibroActivity.this, "Questo libro è già presente nel catalogo", Toast.LENGTH_SHORT);
+                            libro_esistente.show();
+                        }
+                    }
+                }catch (NumberFormatException e){
+                    Toast formato_non_corretto = Toast.makeText(NuovoLibroActivity.this, "Si prega di inserire solo caratteri numerici dove richiesto.", Toast.LENGTH_SHORT);
+                    formato_non_corretto.show();
                 }
             }
         });

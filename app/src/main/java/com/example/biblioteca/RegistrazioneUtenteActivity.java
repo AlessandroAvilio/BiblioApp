@@ -39,7 +39,7 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
         campoNome = findViewById(R.id.titleField);
         campoCogome = findViewById(R.id.authorField);
         campoCodiceFiscale = findViewById(R.id.genreField);
-        campoCodiceFiscale.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
+        campoCodiceFiscale.setFilters(new InputFilter[] {new InputFilter.AllCaps(), new InputFilter.LengthFilter(16)});
         //campoNascita = findViewById(R.id.dateField);
         campoMail = findViewById(R.id.copieInField);          //ASSOCIA I VALORI DICHIARATI SOPRA AGLI ELEMENTI PRESENTI NEL XML
         campoPassword = findViewById(R.id.passwordField);
@@ -84,24 +84,18 @@ public class RegistrazioneUtenteActivity extends AppCompatActivity {
                         utente.impostaAdmin(utente.getPermessi());
                     }
 
-                    /*biblioDB.inerisciUtente(utente);
-                    Cursor cursor = biblioDB.cercaUtente(utente.getCodiceFiscale());
-                    if(cursor.getCount() == 0){
-                        Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente NON registrato", Toast.LENGTH_SHORT);
-                        inserimento.show();
-                    }else{
-                        Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente registrato", Toast.LENGTH_SHORT);
-                        inserimento.show();
-                        Intent intent = new Intent(RegistrazioneUtenteActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    }*/
-
                    long val = biblioDB.inserisciUtente(utente);
                     if(val > 0){
                         Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente registrato", Toast.LENGTH_SHORT);
                         inserimento.show();
                         Intent intent = new Intent(RegistrazioneUtenteActivity.this, LoginActivity.class);
                         startActivity(intent);
+                        campoNome.setText("");
+                        campoCogome.setText("");
+                        campoCodiceFiscale.setText("");
+                        campoMail.setText("");
+                        campoPassword.setText("");
+                        campoConfermaPassword.setText("");
                     }else{
                         Toast inserimento = Toast.makeText(RegistrazioneUtenteActivity.this, "Utente NON registrato", Toast.LENGTH_SHORT);
                         inserimento.show();

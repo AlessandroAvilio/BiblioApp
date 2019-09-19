@@ -175,15 +175,15 @@ public class BiblioDB extends SQLiteOpenHelper {
 
     public Cursor ricercaTitolo(String titolo) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM booktable WHERE titolo=" + "'" + titolo + "'", null);
-        //Cursor res = db.query("booktable", new String[]{COL_TITOLO}, "titolo=?", new String[]{titolo}, null, null, null);
+        //Cursor res = db.rawQuery("SELECT * FROM booktable WHERE titolo=" + "'" + titolo + "'", null);
+        Cursor res = db.query("booktable", null, "titolo=?", new String[]{titolo}, null, null, null);
 
         return res;
     }
 
     public boolean verificaEsistenzaTitolo(String titolo){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM booktable WHERE titolo="+"'"+titolo+"'", null);
+        Cursor cursor = db.query("booktable", null, "titolo=?", new String[]{titolo}, null, null, null);
         if(cursor.getCount() <= 0){
             cursor.close();
             return false;
